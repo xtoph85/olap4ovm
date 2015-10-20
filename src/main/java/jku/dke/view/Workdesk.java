@@ -1,4 +1,4 @@
-package jku.dke.View;
+package jku.dke.view;
 
 import javax.servlet.annotation.WebServlet;
 
