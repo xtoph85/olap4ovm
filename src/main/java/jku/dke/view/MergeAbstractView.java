@@ -41,7 +41,7 @@ import jku.dke.model.ColumnTreeNode;
 
 import jku.dke.model.GraphRepositoryImpl;
 import jku.dke.model.MergeManager;
-
+import jku.dke.model.Olap4OvmAppException;
 import jku.dke.model.TreeNode;
 
 import com.vaadin.ui.HorizontalLayout;
@@ -106,11 +106,10 @@ public class MergeAbstractView extends UI {
           if (!event.getItem().getItemProperty(itemId).getValue().toString().isEmpty()) {
             createNewSubWindow(event.getItem().getItemProperty(itemId).getValue().toString());
             addWindow(subWindow);
-            //System.out.println("Clicked" + event.getPropertyId());
             MergeAbstractView.getEventbus().post(event);
        
             presenter.createGraph(event.getItem().getItemProperty(itemId).getValue().toString());
-            subWindow.setCaption("Graph: " + event.getItem()
+            subWindow.setCaption(event.getItem()
                                 .getItemProperty(itemId).getValue().toString());
             }   
           }
@@ -147,8 +146,8 @@ public class MergeAbstractView extends UI {
     }
   }
   
-  public void showMessage(String message) {
-    Notification.show("Message", message, Type.HUMANIZED_MESSAGE);
+  public void sendUserMessage(String message){
+	  Notification.show("Message",message, Type.HUMANIZED_MESSAGE);
   }
 
 
@@ -172,26 +171,30 @@ public class MergeAbstractView extends UI {
       //TODO: Change to a handler system.
       if (mergeManager.getIsMergeOptionBusy()) {
         try {
-          showMessage("Busy operating merge");
+          sendUserMessage("Busy operating merge");
           TimeUnit.SECONDS.sleep(5);
         } catch (InterruptedException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
       } else {
-        mergeManager.checkValuesForGrid();
+    	try {  
+          mergeManager.checkValuesForGrid();
+    	} catch (Olap4OvmAppException e) {
+    	  sendUserMessage(e.getMessage());
+    	}
       }
       
       List<String> columnHeaderOfRows = mergeManager.getColumnHeaderOfRows();
+
       levelsOfDimensions = mergeManager.getDimensionAtLevel();
       
       if (columnHeaderOfRows.isEmpty()) {
-        showMessage("No entries.");
+    	sendUserMessage("No entries.");
       }
       
       //Get the first header
       for (String header : columnHeaderOfRows) {
-        System.out.println("header for the row tree's: " + header);
         gridContainer.addContainerProperty(header, String.class, "");
       }
       
@@ -203,7 +206,6 @@ public class MergeAbstractView extends UI {
       
       //Fill grid with rows
       for (TreeNode<String> row : pivotTreeStructure) {
-        System.out.println("Fill with rows: " + row.getData());
         this.fillRows(row,null,null,1,null);
       }
       
@@ -269,14 +271,12 @@ public class MergeAbstractView extends UI {
         item.getItemProperty(levelsOfDimensions.get(levelCount)).setValue(node.getData());
         if (!(parent == null)) {
           //as node is not root consider hierarchy
-          System.out.println("Node: " + itemId + " plus Parent: " + parentId);
           gridContainer.setParent(itemId, parentId);
         }
       } else if (!(parent instanceof ColumnTreeNode)
                 && node instanceof ColumnTreeNode
                 && gridContainer.areChildrenAllowed(parentId)) {
         //Set the last node of type ROW to no parent allowed
-        System.out.println("No Children for: " + parentId);
         gridContainer.setChildrenAllowed(parentId, false);
         item = gridContainer.getItem(parentId);
       }
@@ -299,7 +299,6 @@ public class MergeAbstractView extends UI {
       if (node.isLeaf()
           && node instanceof ColumnTreeNode) {
         gridContainer.addContainerProperty(node.getData(), String.class, "");
-        System.out.println("Header for columns: " + node.getData());
       }
     }
     
@@ -322,7 +321,6 @@ public class MergeAbstractView extends UI {
           headerRowStructure.put(levelCounter, nHeaderRow);
         }
         for(String nodeName : set) {
-          System.out.println(nodeName);
         }
         nHeaderRow.join(set.toArray()).setText(node.getData());
       } else if (node.isLeaf()

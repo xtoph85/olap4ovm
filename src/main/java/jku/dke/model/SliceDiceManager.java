@@ -77,9 +77,9 @@ public class SliceDiceManager {
             } else {
               nodeName = entry[counter]
                   .replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", "");
-              System.out.println( "node: " + nodeName);
+              //System.out.println( "node: " + nodeName);
             }
-            System.out.println( "columnCounter: " + columnCounter);
+            //System.out.println( "columnCounter: " + columnCounter);
             if (columnCounter == 1) {
               columnCounter = 0;
             } else {
@@ -160,7 +160,7 @@ public class SliceDiceManager {
       sd.setCoordinate(configuration.getOlapModelNamespace(), 
           "has" + coordinate.getKey(),
           configuration.getOlapModelNamespace(), coordinate.getValue());
-      System.out.println("has" + coordinate.getKey() + " name " + coordinate.getValue());  
+      //System.out.println("has" + coordinate.getKey() + " name " + coordinate.getValue());  
     }
     
     sd.execute(); 

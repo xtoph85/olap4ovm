@@ -15,8 +15,7 @@ import com.vaadin.server.ThemeResource;
 import jku.dke.model.GraphRepositoryImpl;
 import jku.dke.model.NodeImpl;
 
-
-public final class ExampleUtil {
+ final class ExampleUtil {
 
     public static final Object iso3166_PROPERTY_NAME = "name";
     public static final Object iso3166_PROPERTY_SHORT = "short";

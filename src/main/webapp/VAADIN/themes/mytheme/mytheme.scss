@@ -83,4 +83,13 @@
 	        display: none;
 	    }
 	}
+	
+	
+	.v-graph-explorer .node.root {
+		background-color: yellow;
+	}
+	
+	.v-graph-explorer .node.white {
+		background-color: white;
+  	}
 }

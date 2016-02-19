@@ -31,7 +31,7 @@ public enum AbstractManager {
     configuration = factory.getConfiguration(); 
     repository.setConfiguration(configuration);
   }
-  
+  /*
   public GraphRepository createGraph(String graphName) {
     
     List<String[]> resultSet = new ArrayList<String[]>();
@@ -97,8 +97,7 @@ public enum AbstractManager {
     
     return graphRepo;  
   }
-  
-  
+  *//*
   public List<String> getProperties(String graphName){
     
     return null;
@@ -152,7 +151,7 @@ public enum AbstractManager {
       + " { \n"
       + " SELECT (MAX(?cnt) AS ?maxCnt) WHERE { \n"
       + " SELECT ?r (COUNT(?p) AS ?cnt) WHERE { \n"
-      + " ?inf ckr:closureOf :" + ctxVarName + ". \n"
+      + " ?inf ckr:closureOf :" + ctxVarName + ".\n"
       + " ?x :hasAssertedModule ?m .  \n"
       + " ?inf ckr:derivedFrom ?m. \n"
       + " {GRAPH ?m {?r ?p ?o}} \n"
@@ -167,7 +166,7 @@ public enum AbstractManager {
     return stmt;
   }
   
-  
+  */
   private String getGroupingPropertiesStmt(String ctxVarName) {
     String stmt;
     
@@ -180,13 +179,25 @@ public enum AbstractManager {
       + "PREFIX ckr:<http://dkm.fbk.eu/ckr/meta#>\n"
       + "PREFIX :<http://dkm.fbk.eu/ckr/olap-model#> \n" 
       + "SELECT distinct ?result WHERE { \n"
-      + " ?inf ckr:closureOf :" + ctxVarName + ". \n"
+      + " ?inf ckr:closureOf :" + ctxVarName + ".\n"
       + " ?x :hasAssertedModule ?m . \n"
       + " ?inf ckr:derivedFrom ?m . \n"
       + " GRAPH ?m { ?s ?result ?o } \n"
       + " } ";
     
+    System.out.println(stmt);
+    
     return stmt;   
+  }
+  
+  public String[] getGroupingProperties(String ctxName) throws Olap4OvmAppException {
+	  try {
+	  String stmt = getGroupingPropertiesStmt(ctxName);
+	  return repository.executeSingleColumnQuery(stmt, Repository.TEMP);
+	  } catch (Exception e) {
+		  System.out.println(e.getMessage());
+		  throw new Olap4OvmAppException("Couldn't get the Grouping Properties.");
+	  }
   }
   
   public void executeAbstractByGrouping(String groupingProperty, 
@@ -194,41 +205,49 @@ public enum AbstractManager {
                                         String selectionResourceType,
                                         String graph,
                                         Boolean reification) throws Olap4OvmAppException {
-        
+    System.out.println("Start abstract by grouping operation");    
     AbstractByGrouping abstrByGrouping = new AbstractByGrouping();
 
     String namespace = configuration.getOlapModelNamespace(); //TODO Make clear what's the namespace
+    String namespaceEmpty="";
+    System.out.println("Namespace:"+namespace);
     
     if (reification != null) {
       abstrByGrouping.setReification(reification);
+      System.out.println("Reification " + reification);
     }
     
     if (selectionProperty != null
         && !selectionProperty.isEmpty()) {
-      abstrByGrouping.setSelectionProperty(namespace, selectionProperty);
+      abstrByGrouping.setSelectionProperty(namespaceEmpty, selectionProperty);
+      System.out.println("Selection Property " + namespaceEmpty + selectionProperty);
     }
     
     if (selectionResourceType != null
         && !selectionResourceType.isEmpty()) {
-      abstrByGrouping.setSelectionResourceType(namespace, selectionResourceType);
+      abstrByGrouping.setSelectionResourceType(namespaceEmpty, selectionResourceType);
+      System.out.println("Selection Resource Type " + namespaceEmpty + selectionResourceType);
     }
     
     if (graph != null
         && !graph.isEmpty()) {
       abstrByGrouping.setGraph(namespace,graph);
+      System.out.println("Graph " + namespaceEmpty + graph);
     } else {
       throw new Olap4OvmAppException("No graph specified!");
     }
     
     if (groupingProperty != null
         && !groupingProperty.isEmpty()) {
-      abstrByGrouping.setGroupingProperty(namespace, groupingProperty);
+      abstrByGrouping.setGroupingProperty(namespaceEmpty, groupingProperty);
+      System.out.println("Grouping Property " + namespaceEmpty + groupingProperty);
     } else {
       throw new Olap4OvmAppException("No Grouping-Property specified!");
     }
     
     abstrByGrouping.setRepositoryConnector(repository);    
     abstrByGrouping.execute();
+    System.out.println("Abstract executed");
     
   }
   
@@ -283,7 +302,7 @@ public enum AbstractManager {
     
     abstrPropertyByGrouping.setRepositoryConnector(repository);    
     abstrPropertyByGrouping.execute();
-    
+    System.out.println("Abstract executed");
 
   }
   

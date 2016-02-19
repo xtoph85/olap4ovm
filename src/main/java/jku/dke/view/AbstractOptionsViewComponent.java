@@ -1,15 +1,8 @@
 package jku.dke.view;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Container.ItemSetChangeEvent;
-import com.vaadin.data.Container.ItemSetChangeListener;
-import com.vaadin.data.Item;
-import com.vaadin.data.util.HierarchicalContainer;
-import com.vaadin.event.FieldEvents;
 import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.shared.ui.combobox.FilteringMode;
@@ -17,17 +10,16 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Notification.Type;
 
 import at.dke.jku.bmi.api.GroupedPropertyDirection;
-import jku.dke.ExampleUtil;
 import jku.dke.model.AbstractManager;
-import jku.dke.model.Dimension;
-import jku.dke.model.MergeManager;
-import jku.dke.view.MergeOptionsViewComponent.MergeOptionsPresenter;
+import jku.dke.model.Olap4OvmAppException;
+
 
 /**
  * Creates a FormLayout with options how to abstract the graphs. 
@@ -38,12 +30,26 @@ import jku.dke.view.MergeOptionsViewComponent.MergeOptionsPresenter;
 
 class AbstractOptionsViewComponent extends VerticalLayout{
   
+  /**
+	 * 
+	 */
+  private static final long serialVersionUID = 1L;
   private Boolean isApplyButtonVisible = false;
   private final AbstractOptionsPresenter presenter = new AbstractOptionsPresenter();
   final private Component ui;
   private ComboBox abstractComboBox;
   private ComboBox chooseValueComboBox;
-  private ComboBox abstractComboBox3;
+  private VerticalLayout optionsLayout = new VerticalLayout();
+  //All the abstract options
+  private OptionGroup propertyDirection;
+  private ComboBox groupedPropertyCB;
+  private ComboBox groupingPropertyCB;
+  private ComboBox selectionPropertyCB;
+  private ComboBox partitionPropertyCB;
+  private ComboBox aggregatePropertyCB;
+  private ComboBox aggregateFunction;
+  private OptionGroup reificationOption;
+  
   
   AbstractOptionsViewComponent(Component ui){
     this.ui = ui;
@@ -68,9 +74,7 @@ class AbstractOptionsViewComponent extends VerticalLayout{
     chooseValueComboBox.setFilteringMode(FilteringMode.CONTAINS);
     this.addComponent(chooseValueComboBox);
   
-    
     chooseValueComboBox.addFocusListener( new FocusListener(){
-
       @Override
       public void focus(FocusEvent event) {
         if(!chooseValueComboBox.isMultiSelect()){
@@ -82,54 +86,27 @@ class AbstractOptionsViewComponent extends VerticalLayout{
     
     this.fillComboBoxWithAbstractOptions(chooseValueComboBox);
     
+    this.addComponent(optionsLayout);
+    
     abstractComboBox = new ComboBox("Grouping Property");
     abstractComboBox.setInputPrompt("Nothing selected");
     abstractComboBox.setFilteringMode(FilteringMode.CONTAINS);
     abstractComboBox.setVisible(false);
     //abstractComboBox.addItem("Abstract by Grouping");
     this.addComponent(abstractComboBox);
-    /*
-     *         case "Abstract by Grouping": 
-          setAbstractByGrouping(); 
-          break;
-        case "Abstract Property by Grouping": 
-          setAbstractPropertyByGrouping(); 
-          break;
-        case "Abstract Property by Source": 
-          setAbstractPropertyBySource(); 
-          break;
-        case "Abstract Literl by Source": 
-    abstractPropertyByGroupingCB = new ComboBox("Selection Property");
-    abstractPropertyByGroupingCB.setInputPrompt("Nothing selected");
-    abstractPropertyByGroupingCB.setFilteringMode(FilteringMode.CONTAINS);
-    abstractComboBox2.setVisible(false);
-    this.addComponent(abstractComboBox2);
-    
-    abstractPropertyBySource = new ComboBox("Selection Resource Type");
-    abstractComboBox3.setInputPrompt("Nothing selected");
-    abstractComboBox3.setFilteringMode(FilteringMode.CONTAINS);
-    abstractComboBox3.setVisible(false);
-    this.addComponent(abstractComboBox3);
-    
-    abstractLiteralBySource = new ComboBox("Selection Resource Type");
-    abstractComboBox3.setInputPrompt("Nothing selected");
-    abstractComboBox3.setFilteringMode(FilteringMode.CONTAINS);
-    abstractComboBox3.setVisible(false);
-    this.addComponent(abstractComboBox3);
-    */
+
     //chooseValueComboBox.item
     
     Button applyButton = new Button("Apply");
     applyButton.setVisible(isApplyButtonVisible);
     applyButton.addClickListener(this::applyButtonClick);
     this.addComponent(applyButton);
+    //applyButton.setData(getGraphName());
     
     //TODO different style for applyToAllButton to distinguish
     Button applyToAllButton = new Button("Apply to all");
     applyButton.addClickListener(this::applyToAllButtonClick);
     this.addComponent(applyToAllButton);
-    
-    
     
     this.setMargin(false);
   }
@@ -146,21 +123,28 @@ class AbstractOptionsViewComponent extends VerticalLayout{
     presenter.getAbstractSelection(comboBox);
   }
   
+  public void sendUserMessage(String message){
+	  Notification.show("Message",message, Type.HUMANIZED_MESSAGE);
+  }
   
   public void applyToAllButtonClick(Button.ClickEvent clickEvent) {
     //TODO Add presenter-method to use when run is clicked - change graph
     //presenter.saveMergeSelections(pivotStructureMenuTree.getContainerDataSource(), 
     //    (int)mergeOption.getValue());
     
+	presenter.performAbstractOperation();
+	((Button)clickEvent.getComponent()).setData(getGraphName());
+	  
     //Inform the subscriber that something changed
-    //MergeAbstractView.getEventbus().register(ui);
-    //MergeAbstractView.getEventbus().post(clickEvent);
-       }
+    MergeAbstractView.getEventbus().register(ui);
+    MergeAbstractView.getEventbus().post(clickEvent);
+    }
   
-  public void applyButtonClick(Button.ClickEvent clickEvent) {
+   public void applyButtonClick(Button.ClickEvent clickEvent) {
     //TODO Add presenter-method to use when run is clicked - change graph
-    //presenter.saveMergeSelections(pivotStructureMenuTree.getContainerDataSource(), 
-    //    (int)mergeOption.getValue());
+
+	presenter.performAbstractOperation();
+	((Button)clickEvent.getComponent()).setData(getGraphName());
     
     //Inform the subscriber that something changed
     MergeAbstractView.getEventbus().register(ui);
@@ -168,67 +152,158 @@ class AbstractOptionsViewComponent extends VerticalLayout{
    }
   
   private void setAbstractByGrouping() {
-    /*
-      setGroupingProperty String  Yes 
-      setSelectionProperty String  No 
-      setSelectionResourceType String  No 
-      setGraph String  Yes 
-      setReification  Boolean  No 
-     */
-    
+
+	setGroupingProperty();
+	setSelectionProperty();
+	//setSelectionResourceType String  No 
+    setReification();
   }
   
   private void setAbstractPropertyByGrouping() {
-    /*
-      setGroupingProperty String  Yes 
-      setSelectionProperty String  No 
-      setSelectionResourceType String  No 
-      setGroupedProperty String  No 
-      setGroupedPropertyDirection  Enum  No 
-      setGraph String  Yes 
-      setReification  Boolean  No 
-     */
-    
+    setGroupingProperty();
+    setSelectionProperty();
+    //setSelectionResourceType String  No 
+    setGroupedProperty();
+    setGroupedPropertyDirection();
+    setReification();
   }
   
   private void setAbstractPropertyBySource() {
-    /*
-      String groupingProperty, 
-      String selectionProperty,
-      String selectionResourceType,
-      String groupedProperty,
-      GroupedPropertyDirection groupedPropertyDirection,
-      String partitionProperty,
-      String generatedResourceNamespace,
-      String graph,
-      Boolean reification
-     */
-    
+	setGroupingProperty();
+	setSelectionProperty();
+	//setSelectionResourceType String  No 
+    setGroupedProperty();
+    setGroupedPropertyDirection();
+    setPartitionProperty();
+    //String generatedResourceNamespace?
+    setReification();
+
   }
   
   private void setAbstractLiteralBySource() {
-    /*
-      setAggregateFunction  String  Yes 
-      setAggregateProperty  String  No 
-      setSelectionResource Type String  No 
-      setGraph String  Yes 
-      setReification  Boolean  No 
-     */
-    
-    
-    
+    setAggregateFunction();
+    setAggregateProperty();
+    //      setSelectionResource Type String  No 
+    setReification();
   }
   
-  public void getProperties(String graphName){
-    List<String> propertyList = null;
-    propertyList = presenter.getGroupingProperties(graphName);
-    for (String property : propertyList) {
+  private void setGroupedPropertyDirection() {
+    propertyDirection = new OptionGroup("Property Direction");
+    propertyDirection.addItem(1);
+    propertyDirection.setItemCaption(1,"Incoming");
+    propertyDirection.addItem(2);
+    propertyDirection.setItemCaption(2,"Outgoing");
+    propertyDirection.setNullSelectionAllowed(true);
+    propertyDirection.setHtmlContentAllowed(true);
+    propertyDirection.setImmediate(true);
+    optionsLayout.addComponent(propertyDirection);
+  }
+  
+  private String getGraphName(){
+	return ui.getCaption()
+			.replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", "");
+  }
+  
+  private Boolean getReificationOption(){
+	  if((int)reificationOption.getValue() == 1) {
+		  return true;
+	  } else {
+		  return false;
+	  }
+  }
+  private void setAggregateFunction(){
+    aggregateFunction = new ComboBox("Aggregate Function");
+    aggregateFunction.setInputPrompt("Nothing selected");
+    aggregateFunction.setFilteringMode(FilteringMode.CONTAINS);
+    aggregateFunction.addItem("SUM");
+    aggregateFunction.addItem("AVG");
+    aggregateFunction.addItem("MIN");
+    aggregateFunction.addItem("MAX");
+    optionsLayout.addComponent(aggregateFunction);
+  }
+  
+  private void setAggregateProperty(){
+    aggregatePropertyCB = new ComboBox("Aggregate Property");
+    aggregatePropertyCB.setInputPrompt("Nothing selected");
+    aggregatePropertyCB.setFilteringMode(FilteringMode.CONTAINS);
+    for (String item : presenter.getGroupingProperties())
+    {
+    	aggregatePropertyCB.addItem(item);
+      		  //.replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", ""));
+    }
+    optionsLayout.addComponent(groupingPropertyCB);
+  }
+  
+  private void setGroupingProperty(){
+    groupingPropertyCB = new ComboBox("Grouping Property");
+    groupingPropertyCB.setInputPrompt("Nothing selected");
+    groupingPropertyCB.setFilteringMode(FilteringMode.CONTAINS);
+    for (String item : presenter.getGroupingProperties())
+    {
+    	groupingPropertyCB.addItem(item);
+      		  //.replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", ""));
+    }
+    optionsLayout.addComponent(groupingPropertyCB);
+  }
+  
+  private void setPartitionProperty(){
+    partitionPropertyCB = new ComboBox("Partition Property");
+    partitionPropertyCB.setInputPrompt("Nothing selected");
+    partitionPropertyCB.setFilteringMode(FilteringMode.CONTAINS);
+    for (String item : presenter.getGroupingProperties())
+    {
+    	partitionPropertyCB.addItem(item);
+      		  //.replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", ""));
+    }
+    optionsLayout.addComponent(partitionPropertyCB);
+  }
+  
+  private void setSelectionProperty(){
+    selectionPropertyCB = new ComboBox("Selection Property");
+    selectionPropertyCB.setInputPrompt("Nothing selected");
+    selectionPropertyCB.setFilteringMode(FilteringMode.CONTAINS);
+    for (String item : presenter.getGroupingProperties())
+    {
+        selectionPropertyCB.addItem(item);
+      		  //.replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", ""));
+    }
+    optionsLayout.addComponent(selectionPropertyCB);
+  }
+  
+  private void setGroupedProperty(){
+    groupedPropertyCB = new ComboBox("Grouped Property");
+    groupedPropertyCB.setInputPrompt("Nothing selected");
+    groupedPropertyCB.setFilteringMode(FilteringMode.CONTAINS);
+    for (String item : presenter.getGroupingProperties())
+    {
+        groupedPropertyCB.addItem(item);
+      		  //.replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", ""));
+    }
+    optionsLayout.addComponent(groupedPropertyCB);
+	  }
+  
+  private void setReification(){
+    reificationOption = new OptionGroup("Set reification");
+    reificationOption.addItem(1);
+    reificationOption.setItemCaption(1,"Yes");
+    reificationOption.addItem(2);
+    reificationOption.setItemCaption(2,"No");
+    reificationOption.setNullSelectionAllowed(true);
+    reificationOption.setHtmlContentAllowed(true);
+    reificationOption.setImmediate(true);
+    optionsLayout.addComponent(reificationOption);
+  }
+  
+  public void getPropertiekjlkss(String graphName){
+	String[] propertyArray = presenter.getGroupingProperties();
+    for (String property : propertyArray) {
       abstractComboBox.addItem(property);    
     }
   }
   
   class AbstractOptionsPresenter{
     private final AbstractManager abstractManager = AbstractManager.INSTANCE;
+    private String[] groupingProperties = null;
     private final String[] abstractOptions = 
         { "Abstract by Grouping" , 
           "Abstract Property by Grouping" ,
@@ -243,12 +318,68 @@ class AbstractOptionsViewComponent extends VerticalLayout{
       //abstractManager.handleAbstractRequest(dimensionsList, id);
     }
     
-    List<String> getGroupingProperties(String graphName) {
-      return abstractManager.getProperties(graphName);
+
+    public String[] getGroupingProperties(){
+    	if (groupingProperties == null) {
+	    	try {
+	    		groupingProperties = abstractManager.getGroupingProperties(ui.getCaption());	
+	    	} catch (Olap4OvmAppException e) {
+	    		sendUserMessage(e.getMessage());
+	    	}
+    	}
+    	return groupingProperties;
+    }
+    
+    void performAbstractOperation(){
+    	String abstractionOption = (String)chooseValueComboBox.getValue();
+    	System.out.println("abstractOperation: " + abstractionOption);
+    	groupingProperties = null;
+    	try {
+	    	switch (abstractionOption) {
+	        case "Abstract by Grouping": 
+	          abstractManager.executeAbstractByGrouping((String)groupingPropertyCB.getValue(), 
+	        		  									(String)selectionPropertyCB.getValue(), 
+	        		  									null,//selectionResourceType,  
+	        		  									getGraphName(), 
+	        		  									getReificationOption()); 
+	          break;
+	        case "Abstract Property by Grouping": 
+	          abstractManager.executeAbstractPropertyByGrouping((String)groupingPropertyCB.getValue(), 
+																(String)selectionPropertyCB.getValue(),  
+	        		  											null, 
+	        		  											(String) groupedPropertyCB.getValue(), 
+	        		  											propertyDirection((int)propertyDirection.getValue()), 
+	        		  											getGraphName(),//selectionResourceType, 
+	        		  											getReificationOption());
+	          break;
+	        case "Abstract Property by Source": 
+	          abstractManager.executeAbstractPropertyBySource((String)groupingPropertyCB.getValue(), 
+															  (String)selectionPropertyCB.getValue(), 
+	        		  										  null,//selectionResourceType, 
+	        		  										  (String) groupedPropertyCB.getValue(), 
+	        		  										  propertyDirection((int)propertyDirection.getValue()), 
+	        		  										  (String)partitionPropertyCB.getValue(), 
+	        		  										  null,//generatedResourceNamespace, 
+	        		  										  getGraphName(), 
+	        		  										  getReificationOption()); 
+	          break;
+	        case "Abstract Literal by Source": 
+	          abstractManager.executeAbstractLiteralBySource((String) aggregateFunction.getValue(), 
+	        		  										 (String) aggregatePropertyCB.getValue(), 
+	        		  										 null,//selectionResourceType, 
+	        		  										 getGraphName(), 
+	        		  										 getReificationOption());
+	          break;
+	        default: break;
+    	}
+      } catch(Olap4OvmAppException e) {
+    	  sendUserMessage(e.getMessage());
+      }
     }
     
     public void chooseAbstractionOption(String abstractionName) {
       if (abstractionName != null) {
+    	optionsLayout.removeAllComponents();
         switch (abstractionName) {
           case "Abstract by Grouping": 
             setAbstractByGrouping(); 
@@ -265,6 +396,14 @@ class AbstractOptionsViewComponent extends VerticalLayout{
           default: break;
         }
       }  
+    }
+    
+    private GroupedPropertyDirection propertyDirection(int value) {
+    	if (value == 1) {
+    		return GroupedPropertyDirection.INCOMING;
+    	} else {
+    		return GroupedPropertyDirection.OUTGOING;
+    	}
     }
     
   }

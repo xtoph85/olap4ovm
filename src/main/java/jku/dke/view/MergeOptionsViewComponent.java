@@ -165,8 +165,6 @@ class MergeOptionsViewComponent extends VerticalLayout {
   public void deleteNodeWhenDoubleClick(ItemClickEvent clickEvent) {
     if (clickEvent.isDoubleClick()) {
       
-      Notification.show("Test", String.valueOf(clickEvent.getItemId()), Notification.TYPE_TRAY_NOTIFICATION);
-
       //Remove the item when double-clicked
       if (!((Tree) clickEvent.getComponent()).isRoot(clickEvent.getItemId())) {
         ((HierarchicalContainer)((Tree) clickEvent.getComponent()).getContainerDataSource())

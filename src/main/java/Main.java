@@ -14,7 +14,6 @@ import at.dke.jku.bmi.api.PropertiesFileConfigurationFactory;
 import at.dke.jku.bmi.api.Repository;
 import at.dke.jku.bmi.api.RepositoryConnector;
 import at.dke.jku.bmi.api.operations.Merge.MergeMethod;
-import jku.dke.ExampleUtil;
 import jku.dke.model.DataManager;
 import jku.dke.model.Dimension;
 import jku.dke.model.Edge;

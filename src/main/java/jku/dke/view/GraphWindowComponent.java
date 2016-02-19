@@ -9,16 +9,18 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Notification.Type;
 
-import jku.dke.ExampleUtil;
 import jku.dke.model.DataManager;
 import jku.dke.model.Edge;
 import jku.dke.model.GraphRepositoryImpl;
 import jku.dke.model.NodeImpl;
+import jku.dke.model.Olap4OvmAppException;
 import jku.dke.view.MergeOptionsViewComponent.MergeOptionsPresenter;
 
 class GraphWindowComponent extends Window{
@@ -62,23 +64,22 @@ class GraphWindowComponent extends Window{
 
   @Subscribe public void handleAbstractOptions(Button.ClickEvent event) {
     //Change to repository
-    graphRepo = ExampleUtil.createAbstractGraphRepository();
+	String graphName = (String) ((Button) event.getComponent()).getData();
+	if (graphName != null) {
+		presenter.getGraph(graphName);
+	} 
     refreshGraph();
   }
   
   protected void setGraph(String graphName) {
     //graphRepo = ExampleUtil.createGraphRepository();
-    System.out.println("GraphName in window" + graphName);
     graphRepo = presenter.getGraph(graphName);
     //graphRepo = ExampleUtil.createGraphRepository();
-    System.out.println("Graphsize" + graphRepo.size());
     refreshGraph();
   }
   
   private void refreshGraph() {
     graphLayout.removeAllComponents();
-    //add menu to the left side
-    //TODO - Get graph from server
     graph = new GraphExplorer<NodeImpl, Edge>(graphRepo);
     //graph.setSizeFull();
     graphLayout.addComponent(graph);
@@ -92,11 +93,24 @@ class GraphWindowComponent extends Window{
     return graphWindowLeftSideMenuLayout;  
   } 
   
+  public String getWindowName(){
+	  return this.getCaption();
+  }
+  
+  public void sendUserMessage(String message){
+	  Notification.show("Message",message, Type.HUMANIZED_MESSAGE);
+  }
+  
   class GraphWindowPresenter{
     private final DataManager manager = DataManager.INSTANCE;;
 
     GraphRepositoryImpl getGraph(String graphName) {
-      return (GraphRepositoryImpl) manager.createGraph(graphName);
+      try {
+    	return (GraphRepositoryImpl) manager.createGraph(graphName);
+      } catch (Olap4OvmAppException e) {
+    	sendUserMessage(e.getMessage());
+    	return null;
+      }
     }
     
   }

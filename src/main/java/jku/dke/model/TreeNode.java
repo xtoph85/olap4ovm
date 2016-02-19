@@ -81,9 +81,9 @@ public class TreeNode<T> {
     }
     if (node.isLeaf()
         && node instanceof ColumnTreeNode) {
-      System.out.println( ((ColumnTreeNode<String>) node).getGraphName());
+      //System.out.println( ((ColumnTreeNode<String>) node).getGraphName());
     }
-    System.out.println(node.getData() + " Level: " + level);
+    //System.out.println(node.getData() + " Level: " + level);
   }
   
   public void traverse(TreeNode node, TreeNode parent){
@@ -95,11 +95,6 @@ public class TreeNode<T> {
     if (node.isLeaf()
         && node instanceof ColumnTreeNode) {
       //System.out.println( ((ColumnTreeNode<String>) node).getModule());
-    }
-    if (parent == null){
-      System.out.println(node.getData() + " parent: ");
-    } else {
-      System.out.println(node.getData() + " parent: " + parent.getData());
     }
     
   }

@@ -1,7 +1,7 @@
 olap4ovm-UI
 ==============
 
-This is a simple UI to perform OLAP functions on a graph.
+This is a simple UI to perform OLAP functions on graphs, written with VaadinFramework.
 
 
 Workflow

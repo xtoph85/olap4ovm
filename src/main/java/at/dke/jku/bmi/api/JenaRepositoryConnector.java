@@ -45,8 +45,9 @@ public class JenaRepositoryConnector extends RepositoryConnector {
         updateExec = UpdateExecutionFactory.createRemote(updateObj,this.getConfiguration().getTempRepositoryServiceId() + "/update");
       }
       updateExec.execute();
-      
+      System.out.println("Execute update");
     } catch (Exception ex) {
+      System.out.println(ex.toString());
       logger.fatal(ex);
     }
   }

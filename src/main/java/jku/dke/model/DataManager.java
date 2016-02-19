@@ -31,15 +31,13 @@ public enum DataManager {
     repository.setConfiguration(configuration);
   }
    
-  public GraphRepositoryImpl createGraph(String graphName) {
+  public GraphRepositoryImpl createGraph(String graphName) throws Olap4OvmAppException {
     
     List<String[]> resultSet = new ArrayList<String[]>();
     
     String graphValuesStmt = this.getNodesStmt(graphName);
     String graphRootStmt = this.getRootNodeStmt(graphName);
-    
-    System.out.println(graphValuesStmt + "\n\n" + graphRootStmt);
-    
+        
     GraphRepositoryImpl graphRepo = new GraphRepositoryImpl();
     
     String subjectId = null;
@@ -51,16 +49,18 @@ public enum DataManager {
     int counter = 0;
     String rootNode = null;
     //Get rootNode (First entry in the result array)
-    //String rootNode = repository.executeSingleColumnQuery(graphRootStmt, Repository.TEMP);
+    
     for (String node : repository.executeSingleColumnQuery(graphRootStmt, Repository.TEMP)) {
       rootNode = node.replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", "");
-      System.out.println("HomeNode: " + rootNode);
     }
-    //graphRepo.setHomeNodeId(rootNode);
     
     //Values are to keep the order of return values. Tightly coupled with Statements.
     List<String> varNames = new ArrayList<String>(Arrays.asList("m", "s", "p", "o"));  
     resultSet = repository.executeQuery(graphValuesStmt, varNames, Repository.TEMP);
+    
+    if (resultSet.size() == 0) {
+    	throw new Olap4OvmAppException("No data in this graph");
+    }
     
     do {
       int columnCounter = 0; 
@@ -79,13 +79,12 @@ public enum DataManager {
           subjectId = entryValue;
           
           if (!graphRepo.isNodeInRepository(subjectId)) {
-            System.out.println("graphRepo.addNode(\"" + subjectId + "\", \"" + entryValue + "\");");
-            graphRepo.addNode(subjectId, entryValue);
+            graphRepo.addNode(subjectId, entryValue).setStyle("white");;
           }
           if (subjectId.equals(rootNode)
               && !subjectId.equals(graphRepo.getHomeNodeId())) {
-            System.out.println("graphRepo.setHomeNodeId(" + subjectId + ");");
             graphRepo.setHomeNodeId(subjectId);
+        	graphRepo.getHomeNode().setStyle("root");
           }
           
         } else if ( columnCounter == 2) {
@@ -94,25 +93,19 @@ public enum DataManager {
           objectId = entryValue;
           //Create the 
           if (!graphRepo.isNodeInRepository(objectId)) {
-            System.out.println("graphRepo.addNode(\"" + objectId + "\", \"" + entryValue + "\");");
-            graphRepo.addNode(objectId, entryValue);
+            graphRepo.addNode(objectId, entryValue).setStyle("white");;
           }
         }
         columnCounter++;  
       }
       //Add subject and object with the given predicate
-      //System.out.println("triples:\n" + subjectId + "\n" + predicateId + "\n" + objectId);
-      System.out.println("graphRepo.joinNodes(\"" + subjectId + "\", \"" + objectId + "\", \"" + "edge"+counter + "\", \"" + predicateId +  "\");");
       graphRepo.joinNodes(objectId, subjectId, "edge"+counter, predicateId);
       edgeSet.add(predicateId);
       counter++;
     }
     while (counter < resultSetLength);
-    
-    System.out.println(graphRepo.getHomeNodeId());
         
-    //System.out.println(graphRepo.);
-    
+            
     return graphRepo;  
   }
   

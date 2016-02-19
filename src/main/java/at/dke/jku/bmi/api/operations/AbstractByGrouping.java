@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 
 /**
  * @authors     Michael Schnepf  - michael.schnepf@gmx.net
-                Christoph Schütz - schuetz@dke.uni-linz.ac.at
+                Christoph Schï¿½tz - schuetz@dke.uni-linz.ac.at
  */
 
 public class AbstractByGrouping extends Statement{
@@ -338,7 +338,7 @@ public class AbstractByGrouping extends Statement{
             + "     }\n"
             + "   BIND( IF(!BOUND(?cnt),0,?cnt) as ?cntMeta )\n"
             + "   BIND (?cntSum + ?cntMeta AS ?total)\n"
-            //um zu verhindern dass REIF eingefügt werden für 1 (kann vorkommen, wenn es ZB ein Statement
+            //um zu verhindern dass REIF eingefï¿½gt werden fï¿½r 1 (kann vorkommen, wenn es ZB ein Statement
             //x:OtherCar rea:revenue "40"^^xsd:integer. gibt, und keine REIF und kein x:Company rea:revenue "40"^^xsd:integer.)
             //?cnt wird im letzten Teil der QUery auf 0 gesetzt, er findet 1 Statement--> 0+1 = 1 in sum() oben
             + "   FILTER(?total > 1)"
@@ -499,10 +499,13 @@ public class AbstractByGrouping extends Statement{
   public void execute() {
     String sparql = null;
     logger.info("AbstractByGrouping started");
+    System.out.println("AbstractByGrouping started");
     if (this.getGraph() == null) {
       logger.error("No graph set");
+      System.out.println("no graph set");
     } else if (this.getGroupingProperty() == null) {
       logger.error("No grouping property set");
+      System.out.println("No grouping property set");
     } else {
       if (reification) {
         sparql = prepareStatementReificationUpdate();
@@ -514,5 +517,6 @@ public class AbstractByGrouping extends Statement{
       this.getRepositoryConnector().executeUpdate(sparql, Repository.TEMP);
     }
     logger.info("AbstractByGrouping finished");
+    System.out.println("AbstractByGrouping finished");
   }
 }

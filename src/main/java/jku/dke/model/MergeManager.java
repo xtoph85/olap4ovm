@@ -95,29 +95,33 @@ public enum MergeManager {
 
     if (mergeValuesHasChanged) {
       if ( reificationId == 1) {
-        //executeMerge(method,mergeListMap,true);
+        executeMerge(method,mergeListMap,true);
       } else {
-        //executeMerge(method,mergeListMap,false);
+        executeMerge(method,mergeListMap,false);
       }
     } else {
       this.setIsMergeOptionBusy(false);
     }
   }
   
-  public void checkValuesForGrid() {
+  public void checkValuesForGrid() throws Olap4OvmAppException {
     if (!this.getIsMergeOptionBusy()) {
       getGridValues();
       //TODO: Implement event to inform the presenter to check again when merge option was done
     }
   }
   
-  private void getGridValues() {
+  private void getGridValues() throws Olap4OvmAppException {
     List<String[]> resultSet = new ArrayList<String[]>();
     String stmt = this.getModulesSparqlStmt(mergeListMap, pivotDimensions);
     
-    System.out.println(stmt);
+    //System.out.println(stmt);
     
     resultSet = repository.executeQuery(stmt, varNames, Repository.TEMP);
+    
+    if (resultSet.size() == 0) {
+    	throw new Olap4OvmAppException("No results for this selection.");
+    }
     
 
     Map<Integer,String> dimensionAtLevel = new LinkedHashMap<Integer,String>();
@@ -136,7 +140,6 @@ public enum MergeManager {
     //Get first column headers for the row-dimension(s)
     for (Dimension dim : pivotDimensions) {
       if (dim.getAlignment().equals(TableAlignment.ROW) && dim.isParentDimension()) {
-        //System.out.println(dim.getName());
         columnNames.add(dim.getName());
         dimName = dim.getName();
       }
@@ -156,7 +159,6 @@ public enum MergeManager {
     //Go trough result-set
     do {
       int columnCounter = 0; //or entryCounter - for the depth of trees
-      //System.out.println("1");
       for (String[] entry : resultSet) {
         //Get the length of the resultSet
         if (removeUri) {
@@ -168,20 +170,15 @@ public enum MergeManager {
         if (resultSetLength == 0) {
           resultSetLength = entry.length;
         }
-        //System.out.println("2");
-        //System.out.println("2" + entryValueWithoutURL);
         //Create root TreeNode
         if (columnCounter == 0) {
           //Check if the rootNode has changed and if yes create new Tree and add it to list
-          //System.out.println("21");
           if ( !entryValueWithoutUri.equals(rootNode.getData())) {
-            //System.out.println("22");
             rootNode = new TreeNode<String>(entryValueWithoutUri);
             treeStructure.add(rootNode); 
           }
           beforeNode = rootNode;
         }
-        //System.out.println("3");
              
         //Nodes in the RootNode
         if (columnCounter > 0 && columnCounter < amountRows) {
@@ -213,18 +210,15 @@ public enum MergeManager {
               leaf.setParent(beforeColumnStructureNode);
               beforeColumnStructureNode = leaf;
             } else {
-              //System.out.println("Column has child: " + entryValueWithoutURL);
               beforeColumnStructureNode = beforeColumnStructureNode.getChild(entryValueWithoutUri);
             }
           }
         }
-        //System.out.println("4");
         
         columnCounter++;
       }
 
       //Change again to root column structure to start from the beginning
-      //System.out.println("5");
       counter++;
       beforeColumnStructureNode = columnStructure;
 
@@ -235,6 +229,11 @@ public enum MergeManager {
     this.setPivotTreeStructure(treeStructure);
     this.setColumnHeaderTree(((ColumnTreeNode<String>)columnStructure));
     this.setDimensionAtLevel(dimensionAtLevel);
+    
+    if (columnStructure.children.size() == 0 ) {
+      throw new Olap4OvmAppException("No columns for this selection");
+    }
+    
 
   }
 
@@ -376,7 +375,7 @@ public enum MergeManager {
     stmt.append("}}\n");
     stmt.append("order by" + orderBy);
     
-    System.out.println(stmt);
+    //System.out.println(stmt);
     
     return stmt.toString();
   }
@@ -419,7 +418,6 @@ public enum MergeManager {
   public List<Dimension> getCurrentMergeList() {
     
     List<Dimension> returnList = new ArrayList<Dimension>();
-    List<Dimension> helperList = new ArrayList<Dimension>();
     Boolean inDimension = false;
     String currentKey = null;
 
@@ -429,10 +427,8 @@ public enum MergeManager {
         currentKey = dim.getName();
         returnList.add(dim);
         inDimension = true;
-        //System.out.println("GetCurrentMergeList1" + dim.getName());
       } else if (dim.isParentDimension()) {
         inDimension = false;
-        //System.out.println("GetCurrentMergeList2" + dim.getName());
       }
       
       if (inDimension
@@ -440,10 +436,8 @@ public enum MergeManager {
         if (mergeListMap.containsValue("Level_" + currentKey + "_" + dim.getName())) {
           returnList.add(dim);
           inDimension=false;
-          //System.out.println("GetCurrentMergeList3" + dim.getName());
         } else {
           returnList.add(dim);
-          //System.out.println("GetCurrentMergeList4" + dim.getName());
         }
       }
     }
