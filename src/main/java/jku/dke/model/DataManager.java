@@ -59,7 +59,7 @@ public enum DataManager {
     resultSet = repository.executeQuery(graphValuesStmt, varNames, Repository.TEMP);
     
     if (resultSet.size() == 0) {
-    	throw new Olap4OvmAppException("No data in this graph");
+    	throw new Olap4OvmAppException("This graph is empty.");
     }
     
     do {

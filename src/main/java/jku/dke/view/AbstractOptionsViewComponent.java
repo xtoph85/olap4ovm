@@ -47,6 +47,7 @@ class AbstractOptionsViewComponent extends VerticalLayout{
   private ComboBox selectionPropertyCB;
   private ComboBox partitionPropertyCB;
   private ComboBox aggregatePropertyCB;
+  private ComboBox selectionResourceTypeCB;
   private ComboBox aggregateFunction;
   private OptionGroup reificationOption;
   
@@ -152,17 +153,16 @@ class AbstractOptionsViewComponent extends VerticalLayout{
    }
   
   private void setAbstractByGrouping() {
-
 	setGroupingProperty();
 	setSelectionProperty();
-	//setSelectionResourceType String  No 
+	setSelectionResourceType();
     setReification();
   }
   
   private void setAbstractPropertyByGrouping() {
     setGroupingProperty();
     setSelectionProperty();
-    //setSelectionResourceType String  No 
+    setSelectionResourceType();
     setGroupedProperty();
     setGroupedPropertyDirection();
     setReification();
@@ -171,8 +171,8 @@ class AbstractOptionsViewComponent extends VerticalLayout{
   private void setAbstractPropertyBySource() {
 	setGroupingProperty();
 	setSelectionProperty();
-	//setSelectionResourceType String  No 
-    setGroupedProperty();
+	setSelectionResourceType();
+	setGroupedProperty();
     setGroupedPropertyDirection();
     setPartitionProperty();
     //String generatedResourceNamespace?
@@ -183,7 +183,7 @@ class AbstractOptionsViewComponent extends VerticalLayout{
   private void setAbstractLiteralBySource() {
     setAggregateFunction();
     setAggregateProperty();
-    //      setSelectionResource Type String  No 
+    setSelectionResourceType(); 
     setReification();
   }
   
@@ -270,6 +270,20 @@ class AbstractOptionsViewComponent extends VerticalLayout{
     optionsLayout.addComponent(selectionPropertyCB);
   }
   
+  private void setSelectionResourceType() {
+	System.out.println("setSelectionResourceType");
+    selectionResourceTypeCB = new ComboBox("Resource Type");
+    selectionResourceTypeCB.setInputPrompt("Nothing selected");
+    selectionResourceTypeCB.setFilteringMode(FilteringMode.CONTAINS);
+    for (String item : presenter.getResourceTypes())
+    {
+    	System.out.println("setSelectionResourceType "+ item);
+    	selectionResourceTypeCB.addItem(item);
+      		  //.replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", ""));
+    }
+    optionsLayout.addComponent(selectionResourceTypeCB);
+  }
+  
   private void setGroupedProperty(){
     groupedPropertyCB = new ComboBox("Grouped Property");
     groupedPropertyCB.setInputPrompt("Nothing selected");
@@ -280,7 +294,7 @@ class AbstractOptionsViewComponent extends VerticalLayout{
       		  //.replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", ""));
     }
     optionsLayout.addComponent(groupedPropertyCB);
-	  }
+  }
   
   private void setReification(){
     reificationOption = new OptionGroup("Set reification");
@@ -304,6 +318,7 @@ class AbstractOptionsViewComponent extends VerticalLayout{
   class AbstractOptionsPresenter{
     private final AbstractManager abstractManager = AbstractManager.INSTANCE;
     private String[] groupingProperties = null;
+    private String[] resourceTypes = null;
     private final String[] abstractOptions = 
         { "Abstract by Grouping" , 
           "Abstract Property by Grouping" ,
@@ -316,6 +331,20 @@ class AbstractOptionsViewComponent extends VerticalLayout{
         comboBox.addItem(abstractOptions[i]);    
       }
       //abstractManager.handleAbstractRequest(dimensionsList, id);
+    }
+    
+    public String[] getResourceTypes(){
+    	System.out.println("getResourceType");
+    	if (resourceTypes == null) {
+	    	try {
+	        	System.out.println("getResourceType Set");
+	    		resourceTypes = abstractManager.getResourceTypes();	
+	    	} catch (Olap4OvmAppException e) {
+	        	System.out.println("getResourceType Exception");
+	    		sendUserMessage(e.getMessage());
+	    	}
+    	}
+    	return resourceTypes;
     }
     
 
@@ -339,14 +368,14 @@ class AbstractOptionsViewComponent extends VerticalLayout{
 	        case "Abstract by Grouping": 
 	          abstractManager.executeAbstractByGrouping((String)groupingPropertyCB.getValue(), 
 	        		  									(String)selectionPropertyCB.getValue(), 
-	        		  									null,//selectionResourceType,  
+	        		  									(String)selectionResourceTypeCB.getValue(),
 	        		  									getGraphName(), 
 	        		  									getReificationOption()); 
 	          break;
 	        case "Abstract Property by Grouping": 
 	          abstractManager.executeAbstractPropertyByGrouping((String)groupingPropertyCB.getValue(), 
 																(String)selectionPropertyCB.getValue(),  
-	        		  											null, 
+																(String)selectionResourceTypeCB.getValue(),
 	        		  											(String) groupedPropertyCB.getValue(), 
 	        		  											propertyDirection((int)propertyDirection.getValue()), 
 	        		  											getGraphName(),//selectionResourceType, 
@@ -355,7 +384,7 @@ class AbstractOptionsViewComponent extends VerticalLayout{
 	        case "Abstract Property by Source": 
 	          abstractManager.executeAbstractPropertyBySource((String)groupingPropertyCB.getValue(), 
 															  (String)selectionPropertyCB.getValue(), 
-	        		  										  null,//selectionResourceType, 
+															  (String)selectionResourceTypeCB.getValue(),
 	        		  										  (String) groupedPropertyCB.getValue(), 
 	        		  										  propertyDirection((int)propertyDirection.getValue()), 
 	        		  										  (String)partitionPropertyCB.getValue(), 
@@ -366,7 +395,7 @@ class AbstractOptionsViewComponent extends VerticalLayout{
 	        case "Abstract Literal by Source": 
 	          abstractManager.executeAbstractLiteralBySource((String) aggregateFunction.getValue(), 
 	        		  										 (String) aggregatePropertyCB.getValue(), 
-	        		  										 null,//selectionResourceType, 
+	        		  										 (String)selectionResourceTypeCB.getValue(),
 	        		  										 getGraphName(), 
 	        		  										 getReificationOption());
 	          break;

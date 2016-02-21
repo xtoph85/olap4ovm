@@ -19,6 +19,7 @@ import jku.dke.model.Dimension;
 import jku.dke.model.Edge;
 import jku.dke.model.GraphRepositoryImpl;
 import jku.dke.model.MergeManager;
+import jku.dke.model.Olap4OvmAppException;
 import jku.dke.model.SliceDiceManager;
 import jku.dke.model.TableAlignment;
 
@@ -167,7 +168,7 @@ public class Main {
    // manager.pivotDimensions = dimensionList;
     
     manager.handleMergeRequest(dimensionList,1,1,true);
-    manager.checkValuesForGrid();
+    //manager.checkValuesForGrid();
     //manager.getGridValues();
 
   }
@@ -177,7 +178,13 @@ public class Main {
     String graphName = "Ctx-Department_Production-Location_Europe-Time_Y2014-Q4";
     
     DataManager manager = DataManager.INSTANCE;
-    GraphRepositoryImpl repo = manager.createGraph(graphName);
+    GraphRepositoryImpl repo = null;
+	try {
+		repo = manager.createGraph(graphName);
+	} catch (Olap4OvmAppException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     for (String name : repo.getArcLabels()) {
       System.out.println(name);
     }

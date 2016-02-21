@@ -190,6 +190,32 @@ public enum AbstractManager {
     return stmt;   
   }
   
+  private String getResourceTypesStmt() {
+    String stmt = 
+	 "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+      + "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+      + "PREFIX x:<http://www.semanticweb.org/schnepf/ontology#>\n"
+      + "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
+      + "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
+      + "PREFIX ckr:<http://dkm.fbk.eu/ckr/meta#>\n"
+      + "PREFIX :<http://dkm.fbk.eu/ckr/olap-model#> \n" 
+      + "SELECT distinct ?result WHERE { \n"
+      + " ?x rdf:type ?result. \n"
+      + " } ";
+	  return stmt;
+	  
+  }
+  
+  public String[] getResourceTypes() throws Olap4OvmAppException {
+	  try {
+	  String stmt = getResourceTypesStmt();
+	  return repository.executeSingleColumnQuery(stmt, Repository.TEMP);
+	  } catch (Exception e) {
+		  System.out.println(e.getMessage());
+		  throw new Olap4OvmAppException("Couldn't get Resource-Types.");
+	  }
+  }
+  
   public String[] getGroupingProperties(String ctxName) throws Olap4OvmAppException {
 	  try {
 	  String stmt = getGroupingPropertiesStmt(ctxName);
