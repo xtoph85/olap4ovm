@@ -40,7 +40,7 @@ import jku.dke.model.MergeManager;
 import jku.dke.model.SliceDiceManager;
 import jku.dke.view.MergeOptionsViewComponent.MergeOptionsPresenter;
 
-public class SliceDiceView extends Window {
+public class SliceDiceWindowComponent extends Window {
   
   private Tree tree;
   private Table table;
@@ -49,7 +49,7 @@ public class SliceDiceView extends Window {
   private final LinkedHashMap<String, String> dimInstanceMap = new LinkedHashMap<String, String>() ;
 
   
-  public SliceDiceView() {
+  public SliceDiceWindowComponent() {
       
     mainLayout.setSpacing(true);
     
@@ -59,9 +59,9 @@ public class SliceDiceView extends Window {
 
     // First create the components to be able to refer to them as allowed
     // drag sources
-    final Label treeHeader = new Label("<font size=\"6\">Levels</font>",ContentMode.HTML);
+    final Label treeHeader = new Label("<font size=\"6\">Dimension-Attributes</font>",ContentMode.HTML);
     final Label tableHeader = 
-        new Label("<font size=\"6\">Slice/Dice Levels</font>",ContentMode.HTML);
+        new Label("<font size=\"6\">Slice/Dice Attributes</font>",ContentMode.HTML);
 
     
     //Populate tree
@@ -139,7 +139,7 @@ public class SliceDiceView extends Window {
     System.out.println("1");
     // Define the properties (columns)
     tableContainer.addContainerProperty("Dimension", String.class, "");
-    tableContainer.addContainerProperty("LevelInstance", String.class, "");
+    tableContainer.addContainerProperty("Dimension-Attribute", String.class, "");
 
     table.setContainerDataSource(tableContainer);
       
@@ -171,51 +171,6 @@ public class SliceDiceView extends Window {
             item.getItemProperty("Dimension").setValue(dimName);
             item.getItemProperty("LevelInstance").setValue(name);
             
-            /*
-            if (source.hasChildren(sourceItemId)) {
-                // move the whole subtree
-                for (Object childId : source.getChildren(sourceItemId)) {
-                    name = (String) childId;
-                    dimName = presenter.getDimensionOfInstance(name);
-                    item = null;
-                    item = table.addItem(name);
-                    item.getItemProperty("Dimension").setValue(dimName);
-                    item.getItemProperty("LevelInstance").setValue(name);
-
-                }
-            }
-            */
-
-
-
-            
-            /*
-            // move item(s) to the correct location in the table
-
-            AbstractSelectTargetDetails dropData = ((AbstractSelectTargetDetails) dropEvent
-                    .getTargetDetails());
-            Object targetItemId = dropData.getItemIdOver();
-
-            for (Object sourceId : dimInstanceMap.keySet()) {
-              String newItemId = "Dimension";
-              if (targetItemId != null) {
-                switch (dropData.getDropLocation()) {
-                case BOTTOM:
-                    tableContainer.addItemAfter(targetItemId, newItemId);
-                    break;
-                case MIDDLE:
-                case TOP:
-                    Object prevItemId = tableContainer
-                            .prevItemId(targetItemId);
-                    tableContainer.addItemAfter(prevItemId, newItemId);
-                    break;
-                }
-              } else {
-                tableContainer.addItem(newItemId);
-              }
-              source.removeItem(sourceId);
-            }
-            */
           }
 
           public AcceptCriterion getAcceptCriterion() {
@@ -224,24 +179,6 @@ public class SliceDiceView extends Window {
       });  
   }
 
-  private void getChildrenRecursive(Container.Hierarchical source,
-                                        Object sourceId, String parentDimName) {
-    
-    String name = (String) sourceId;
-    String dimName = presenter.getDimensionOfInstance(name);
-    Item item = null;
-    item = table.addItem(name);
-    item.getItemProperty("Dimension").setValue(dimName);
-    item.getItemProperty("LevelInstance").setValue(name);
-    
-    if(source.hasChildren(sourceId)) {
-      for (Object childId : source.getChildren(sourceId)) {
-        getChildrenRecursive(source,sourceId,dimName);
-      }
-    }
-    
-  }
-  
   
   class SliceDicePresenter{
     private final SliceDiceManager manager = new SliceDiceManager();
@@ -282,11 +219,7 @@ public class SliceDiceView extends Window {
           container.setParent(entry.getKey(), entry.getValue());
         }
       }
-      //System.out.println("Container size: " + container.size());
       for (Object name :  container.getItemIds()) {
-        //System.out.println("Itemid: " + (String)name);
-        //System.out.println(container.isRoot(name));
-        //System.out.println(container.hasChildren(name));
         if (!container.hasChildren(name)) {
           container.setChildrenAllowed(name, false);
         }

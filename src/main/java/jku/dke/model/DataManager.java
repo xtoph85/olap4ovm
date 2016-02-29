@@ -48,6 +48,7 @@ public enum DataManager {
     int resultSetLength = 0;
     int counter = 0;
     String rootNode = null;
+    boolean isLiteral = false;
     //Get rootNode (First entry in the result array)
     
     for (String node : repository.executeSingleColumnQuery(graphRootStmt, Repository.TEMP)) {
@@ -69,9 +70,17 @@ public enum DataManager {
         if (resultSetLength == 0) {
           resultSetLength = entry.length;
         }
+        System.out.println(entry[counter]);
+        //TODO Check if literal to color it differently
+        
+        if (!entry[counter].startsWith("http")) {
+          isLiteral = true;
+        } else {
+          isLiteral = false; 
+        }
         
         String entryValue = entry[counter]
-            .replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", "");
+                .replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", "");
         //System.out.println(entryValue);
         
         
@@ -79,7 +88,9 @@ public enum DataManager {
           subjectId = entryValue;
           
           if (!graphRepo.isNodeInRepository(subjectId)) {
-            graphRepo.addNode(subjectId, entryValue).setStyle("white");;
+            graphRepo.addNode(subjectId, entryValue).setStyle("blue");
+          } else  {
+        	  graphRepo.getNodeById(subjectId).setStyle("blue");
           }
           if (subjectId.equals(rootNode)
               && !subjectId.equals(graphRepo.getHomeNodeId())) {
@@ -93,7 +104,11 @@ public enum DataManager {
           objectId = entryValue;
           //Create the 
           if (!graphRepo.isNodeInRepository(objectId)) {
-            graphRepo.addNode(objectId, entryValue).setStyle("white");;
+        	if (isLiteral) {
+              graphRepo.addNode(objectId, entryValue).setStyle("white");
+        	} else {
+        	  graphRepo.addNode(objectId, entryValue).setStyle("blue");	
+        	}
           }
         }
         columnCounter++;  

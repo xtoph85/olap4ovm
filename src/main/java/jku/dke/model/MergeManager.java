@@ -107,16 +107,14 @@ public enum MergeManager {
   public void checkValuesForGrid() throws Olap4OvmAppException {
     if (!this.getIsMergeOptionBusy()) {
       getGridValues();
-      //TODO: Implement event to inform the presenter to check again when merge option was done
+      //TODO: Implement event to inform the presenter to check again when merge option was done //Not necessary at the moment
     }
   }
   
   private void getGridValues() throws Olap4OvmAppException {
     List<String[]> resultSet = new ArrayList<String[]>();
     String stmt = this.getModulesSparqlStmt(mergeListMap, pivotDimensions);
-    
-    //System.out.println(stmt);
-    
+        
     resultSet = repository.executeQuery(stmt, varNames, Repository.TEMP);
     
     if (resultSet.size() == 0) {
@@ -237,7 +235,6 @@ public enum MergeManager {
 
   }
 
-  
   private Boolean hasPivotTableChanged(List<Dimension> dimensions) {
     //TODO Something different between pivotDimensions and dimensions?
     return false;

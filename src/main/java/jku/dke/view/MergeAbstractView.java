@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.servlet.annotation.WebServlet;
 
-import com.google.gwt.thirdparty.guava.common.collect.Multimap;
 import com.google.gwt.thirdparty.guava.common.eventbus.EventBus;
 import com.google.gwt.thirdparty.guava.common.eventbus.Subscribe;
 import com.vaadin.annotations.Theme;
@@ -81,7 +80,7 @@ public class MergeAbstractView extends UI {
     mainLayout.setMargin(true);
     setContent(mainLayout);
     
-    Window sliceDiceWindow = new SliceDiceView();
+    Window sliceDiceWindow = new SliceDiceWindowComponent();
     this.addWindow(sliceDiceWindow);
     
     getPage().setTitle("OLAP for Ontology Valued Measures");
@@ -108,16 +107,13 @@ public class MergeAbstractView extends UI {
             addWindow(subWindow);
             MergeAbstractView.getEventbus().post(event);
        
-            presenter.createGraph(event.getItem().getItemProperty(itemId).getValue().toString());
+            //presenter.createGraph(event.getItem().getItemProperty(itemId).getValue().toString());
             subWindow.setCaption(event.getItem()
                                 .getItemProperty(itemId).getValue().toString());
             }   
           }
         } 
         });
-
-      //mainLayout.addComponent(grid);
-      //CoordinateField field= new CoordinateField("bottom: 0; left: 20%");
 
   }
 
@@ -330,9 +326,6 @@ public class MergeAbstractView extends UI {
       return set;
     }
     
-    void createGraph(String graphName) {
-      //AbstractManager create Graph
-    }
   }
 
   @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)

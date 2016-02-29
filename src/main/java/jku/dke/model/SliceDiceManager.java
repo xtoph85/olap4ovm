@@ -110,7 +110,8 @@ public class SliceDiceManager {
     if (isPrefixAllowed) {
       dimName = dimensionName;
     } else {
-      dimName = dimensionName.replaceFirst("^(http://dkm.fbk.eu/ckr/olap-model#)", ""); //TODO regex
+      dimName = dimensionName.replaceFirst("http://[-a-zA-Z0-9@:%._\\+~=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~?&//=]*#)", "");
+    		  //replaceFirst("^(http://dkm.fbk.eu/ckr/olap-model#)", ""); //TODO regex
     }
       
     

@@ -30,19 +30,9 @@ class TreeSortDropHandler implements DropHandler {
         this.tree = tree;
     }
     
-    /*
-    public TreeSortDropHandler(final Tree tree, final Tree dropTree,
-            final HierarchicalContainer container) {
-        this.tree = tree;
-        this.dropTree = dropTree;
-    }
-    */
-
     @Override
     public AcceptCriterion getAcceptCriterion() {
-        // Alternatively, could use the following criteria to eliminate some
-        // checks in drop():
-        // new And(IsDataBound.get(), new DragSourceIs(tree));
+
         return AcceptAll.get();
         }
 
@@ -52,13 +42,6 @@ class TreeSortDropHandler implements DropHandler {
 
         // Make sure the drag source is the same tree
         final Transferable t = dropEvent.getTransferable();
-
-        // see the comment in getAcceptCriterion()
-        /*
-        if (t.getSourceComponent() != tree
-                || !(t instanceof DataBoundTransferable)) {
-            return;
-        } */
 
         final TreeTargetDetails dropData = ((TreeTargetDetails) dropEvent
                 .getTargetDetails());
