@@ -18,13 +18,13 @@ import at.dke.jku.bmi.api.PropertiesFileConfigurationFactory;
 import at.dke.jku.bmi.api.Repository;
 import at.dke.jku.bmi.api.RepositoryConnector;
 
-public enum DataManager {
-  INSTANCE;
+public class DataManager {
+//  INSTANCE;
   private final RepositoryConnector repository = new JenaRepositoryConnector();
   private Configuration configuration; 
   private Set<String> edgeSet = new HashSet<String>();
   
-  DataManager(){
+  public DataManager(){
     ConfigurationFactory factory = 
         new PropertiesFileConfigurationFactory("jena_config.properties");   
     configuration = factory.getConfiguration(); 
@@ -71,7 +71,6 @@ public enum DataManager {
           resultSetLength = entry.length;
         }
         System.out.println(entry[counter]);
-        //TODO Check if literal to color it differently
         
         if (!entry[counter].startsWith("http")) {
           isLiteral = true;
@@ -90,10 +89,9 @@ public enum DataManager {
           if (!graphRepo.isNodeInRepository(subjectId)) {
             graphRepo.addNode(subjectId, entryValue).setStyle("blue");
           } else  {
-        	  graphRepo.getNodeById(subjectId).setStyle("blue");
+            graphRepo.getNodeById(subjectId).setStyle("blue");
           }
-          if (subjectId.equals(rootNode)
-              && !subjectId.equals(graphRepo.getHomeNodeId())) {
+          if (subjectId.equals(rootNode)) {
             graphRepo.setHomeNodeId(subjectId);
         	graphRepo.getHomeNode().setStyle("root");
           }
@@ -119,7 +117,7 @@ public enum DataManager {
       counter++;
     }
     while (counter < resultSetLength);
-        
+            
             
     return graphRepo;  
   }

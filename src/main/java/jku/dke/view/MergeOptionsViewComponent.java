@@ -121,8 +121,8 @@ class MergeOptionsViewComponent extends VerticalLayout {
         (int)mergeOption.getValue(), (int)reificationOption.getValue(), cutUri.getValue());
     
     //Inform the subscriber that something changed
-    MergeAbstractView.getEventbus().register(ui);
-    MergeAbstractView.getEventbus().post(clickEvent);
+    MainView.getEventbus().register(ui);
+    MainView.getEventbus().post(clickEvent);
   }
   
   public HierarchicalContainer getPivotContainer(){

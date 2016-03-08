@@ -94,6 +94,8 @@ public enum AbstractManager {
 
     String namespace = configuration.getOlapModelNamespace(); //TODO Make clear what's the namespace
     String namespaceEmpty="";
+    
+    String moduleGraphName = graph.replaceFirst("Ctx", "Module");
     System.out.println("Namespace:"+namespace);
     
     if (reification != null) {
@@ -115,8 +117,8 @@ public enum AbstractManager {
     
     if (graph != null
         && !graph.isEmpty()) {
-      abstrByGrouping.setGraph(namespace,graph);
-      System.out.println("Graph " + namespaceEmpty + graph);
+      abstrByGrouping.setGraph(namespace,moduleGraphName);
+      System.out.println("Graph " + namespace + moduleGraphName);
     } else {
       throw new Olap4OvmAppException("No graph specified!");
     }
@@ -146,6 +148,7 @@ public enum AbstractManager {
     AbstractPropertyByGrouping abstrPropertyByGrouping = new AbstractPropertyByGrouping(); 
     
     String namespace = configuration.getOlapModelNamespace(); //TODO Make clear what's the namespace
+    String moduleGraphName = graph.replaceFirst("Ctx", "Module");
     
     if (reification != null) {
       abstrPropertyByGrouping.setReification(reification);
@@ -168,7 +171,7 @@ public enum AbstractManager {
     
     if (graph != null
         && !graph.isEmpty()) {
-      abstrPropertyByGrouping.setGraph(namespace,graph);
+      abstrPropertyByGrouping.setGraph(namespace,moduleGraphName);
     } else {
       throw new Olap4OvmAppException("No graph specified!");
     }
@@ -202,7 +205,8 @@ public enum AbstractManager {
     
     AbstractPropertyBySource abstrPropertyBySource = new AbstractPropertyBySource();
     String namespace = configuration.getOlapModelNamespace(); //TODO Make clear what's the namespace
-
+    String moduleGraphName = graph.replaceFirst("Ctx", "Module");
+    
     if (generatedResourceNamespace != null
         && !generatedResourceNamespace.isEmpty()) {
       abstrPropertyBySource.setGeneratedResourceNamespace(generatedResourceNamespace);
@@ -238,7 +242,7 @@ public enum AbstractManager {
     
     if (graph != null
         && !graph.isEmpty()) {
-      abstrPropertyBySource.setGraph(namespace,graph);
+      abstrPropertyBySource.setGraph(namespace,moduleGraphName);
     } else {
       throw new Olap4OvmAppException("No graph specified!");
     }
@@ -269,6 +273,7 @@ public enum AbstractManager {
     AbstractLiteralBySource abstrLiteralBySource = new AbstractLiteralBySource();
         
     String namespace = configuration.getOlapModelNamespace(); //TODO Make clear what's the namespace
+    String moduleGraphName = graph.replaceFirst("Ctx", "Module");
     
     if (reification != null) {
       abstrLiteralBySource.setReification(reification);
@@ -276,7 +281,7 @@ public enum AbstractManager {
     
     if (graph != null
         && !graph.isEmpty()) {
-      abstrLiteralBySource.setGraph(namespace,graph);
+      abstrLiteralBySource.setGraph(namespace,moduleGraphName);
     } else {
       throw new Olap4OvmAppException("No graph specified!");
     }

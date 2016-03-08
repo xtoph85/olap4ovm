@@ -38,7 +38,6 @@ import com.vaadin.graph.GraphExplorer;
 
 import jku.dke.model.ColumnTreeNode;
 
-import jku.dke.model.GraphRepositoryImpl;
 import jku.dke.model.MergeManager;
 import jku.dke.model.Olap4OvmAppException;
 import jku.dke.model.TreeNode;
@@ -59,11 +58,8 @@ import com.vaadin.ui.Notification.Type;
  */
 @Theme("mytheme")
 @Widgetset("jku.dke.view.MyAppWidgetset")
-public class MergeAbstractView extends UI {
+public class MainView extends UI {
 	
-  private GraphRepositoryImpl graphRepo;
-  private GraphExplorer<?, ?> graph;
-  private CssLayout graphLayout;
   private Window subWindow;
   private static final EventBus eventBus = new EventBus();
   private Grid grid;
@@ -105,7 +101,7 @@ public class MergeAbstractView extends UI {
           if (!event.getItem().getItemProperty(itemId).getValue().toString().isEmpty()) {
             createNewSubWindow(event.getItem().getItemProperty(itemId).getValue().toString());
             addWindow(subWindow);
-            MergeAbstractView.getEventbus().post(event);
+            MainView.getEventbus().post(event);
        
             //presenter.createGraph(event.getItem().getItemProperty(itemId).getValue().toString());
             subWindow.setCaption(event.getItem()
@@ -329,7 +325,7 @@ public class MergeAbstractView extends UI {
   }
 
   @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-  @VaadinServletConfiguration(ui = MergeAbstractView.class, productionMode = false)
+  @VaadinServletConfiguration(ui = MainView.class, productionMode = false)
   public static class MyUIServlet extends VaadinServlet {
   }
 }

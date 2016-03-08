@@ -52,12 +52,12 @@ class AbstractOptionsViewComponent extends VerticalLayout{
   private OptionGroup reificationOption;
   
   
-  AbstractOptionsViewComponent(Component ui){
+  AbstractOptionsViewComponent(Component ui) {
     this.ui = ui;
     init();
   }
   
-  AbstractOptionsViewComponent(Component ui, Boolean isApplyButtonVisible){
+  AbstractOptionsViewComponent(Component ui, Boolean isApplyButtonVisible) {
     this.ui = ui;
     this.isApplyButtonVisible = isApplyButtonVisible;
     init();
@@ -137,8 +137,8 @@ class AbstractOptionsViewComponent extends VerticalLayout{
 	((Button)clickEvent.getComponent()).setData(getGraphName());
 	  
     //Inform the subscriber that something changed
-    MergeAbstractView.getEventbus().register(ui);
-    MergeAbstractView.getEventbus().post(clickEvent);
+    MainView.getEventbus().register(ui);
+    MainView.getEventbus().post(clickEvent);
     }
   
    public void applyButtonClick(Button.ClickEvent clickEvent) {
@@ -148,8 +148,8 @@ class AbstractOptionsViewComponent extends VerticalLayout{
 	((Button)clickEvent.getComponent()).setData(getGraphName());
     
     //Inform the subscriber that something changed
-    MergeAbstractView.getEventbus().register(ui);
-    MergeAbstractView.getEventbus().post(clickEvent);
+    MainView.getEventbus().register(ui);
+    MainView.getEventbus().post(clickEvent);
    }
   
   private void setAbstractByGrouping() {

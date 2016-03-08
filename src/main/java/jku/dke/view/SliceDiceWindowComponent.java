@@ -139,7 +139,7 @@ public class SliceDiceWindowComponent extends Window {
     System.out.println("1");
     // Define the properties (columns)
     tableContainer.addContainerProperty("Dimension", String.class, "");
-    tableContainer.addContainerProperty("Dimension-Attribute", String.class, "");
+    tableContainer.addContainerProperty("DimensionAttribute", String.class, "");
 
     table.setContainerDataSource(tableContainer);
       
@@ -169,7 +169,7 @@ public class SliceDiceWindowComponent extends Window {
             Item item = null;
             item = table.addItem(name);
             item.getItemProperty("Dimension").setValue(dimName);
-            item.getItemProperty("LevelInstance").setValue(name);
+            item.getItemProperty("DimensionAttribute").setValue(name);
             
           }
 
@@ -179,6 +179,24 @@ public class SliceDiceWindowComponent extends Window {
       });  
   }
 
+  private void getChildrenRecursive(Container.Hierarchical source,
+                                        Object sourceId, String parentDimName) {
+    
+    String name = (String) sourceId;
+    String dimName = presenter.getDimensionOfInstance(name);
+    Item item = null;
+    item = table.addItem(name);
+    item.getItemProperty("Dimension").setValue(dimName);
+    item.getItemProperty("LevelInstance").setValue(name);
+    
+    if(source.hasChildren(sourceId)) {
+      for (Object childId : source.getChildren(sourceId)) {
+        getChildrenRecursive(source,sourceId,dimName);
+      }
+    }
+    
+  }
+  
   
   class SliceDicePresenter{
     private final SliceDiceManager manager = new SliceDiceManager();
@@ -219,7 +237,11 @@ public class SliceDiceWindowComponent extends Window {
           container.setParent(entry.getKey(), entry.getValue());
         }
       }
+      //System.out.println("Container size: " + container.size());
       for (Object name :  container.getItemIds()) {
+        //System.out.println("Itemid: " + (String)name);
+        //System.out.println(container.isRoot(name));
+        //System.out.println(container.hasChildren(name));
         if (!container.hasChildren(name)) {
           container.setChildrenAllowed(name, false);
         }

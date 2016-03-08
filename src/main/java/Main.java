@@ -177,7 +177,7 @@ public class Main {
   static void testGraph(){
     String graphName = "Ctx-Department_Production-Location_Europe-Time_Y2014-Q4";
     
-    DataManager manager = DataManager.INSTANCE;
+    DataManager manager = new DataManager();
     GraphRepositoryImpl repo = null;
 	try {
 		repo = manager.createGraph(graphName);

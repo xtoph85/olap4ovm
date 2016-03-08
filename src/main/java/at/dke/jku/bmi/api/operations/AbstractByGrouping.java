@@ -506,7 +506,7 @@ public class AbstractByGrouping extends Statement{
     } else if (this.getGroupingProperty() == null) {
       logger.error("No grouping property set");
       System.out.println("No grouping property set");
-    } else {
+    } else {    
       if (reification) {
         sparql = prepareStatementReificationUpdate();
         this.getRepositoryConnector().executeUpdate(sparql, Repository.TEMP);
@@ -516,6 +516,7 @@ public class AbstractByGrouping extends Statement{
       sparql = prepareStatement();
       this.getRepositoryConnector().executeUpdate(sparql, Repository.TEMP);
     }
+    System.out.println(sparql);
     logger.info("AbstractByGrouping finished");
     System.out.println("AbstractByGrouping finished");
   }

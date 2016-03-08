@@ -74,15 +74,16 @@ class GraphWindowComponent extends Window{
   protected void setGraph(String graphName) {
     //graphRepo = ExampleUtil.createGraphRepository();
     graphRepo = presenter.getGraph(graphName);
-    //graphRepo = ExampleUtil.createGraphRepository();
+    //graphRepo = ExampleUtil.    if (graphRepo != null) {
     refreshGraph();
   }
   
   private void refreshGraph() {
     graphLayout.removeAllComponents();
-    graph = new GraphExplorer<NodeImpl, Edge>(graphRepo);
-    //graph.setSizeFull();
-    graphLayout.addComponent(graph);
+    if (graphRepo != null) {
+	  graph = new GraphExplorer<NodeImpl, Edge>(graphRepo);
+	  graphLayout.addComponent(graph);
+    }
   }
 
   private VerticalLayout createLeftSideMenu() {
@@ -93,16 +94,16 @@ class GraphWindowComponent extends Window{
     return graphWindowLeftSideMenuLayout;  
   } 
   
-  public String getWindowName(){
-	  return this.getCaption();
+  public String getWindowName() {
+    return this.getCaption();
   }
   
-  public void sendUserMessage(String message){
-	  Notification.show("Message",message, Type.HUMANIZED_MESSAGE);
+  public void sendUserMessage(String message) {
+    Notification.show("Message",message, Type.HUMANIZED_MESSAGE);
   }
   
-  class GraphWindowPresenter{
-    private final DataManager manager = DataManager.INSTANCE;;
+  class GraphWindowPresenter {
+    private final DataManager manager = new DataManager();
 
     GraphRepositoryImpl getGraph(String graphName) {
       try {
